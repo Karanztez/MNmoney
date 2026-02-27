@@ -1,0 +1,9 @@
+# Configuration for MNmoney
+
+# MySQL Database connection settings
+mysql:
+  host: 'localhost'
+  port: 3306
+  database: 'mnmoney'
+  username: 'my'
+  password: '12345'

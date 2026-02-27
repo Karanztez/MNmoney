@@ -1,0 +1,40 @@
+name: MNmoney
+version: '1.0-SNAPSHOT'
+main: money.mnmoney.MNmoney
+api-version: '1.21'
+load: STARTUP
+authors: [ Gordy ]
+description: ระบบเงิน Magnus Network - Async MySQL + Bank + Leaderboard
+softdepend: [PlaceholderAPI]
+
+commands:
+  mnc:
+    description: ดูยอดเงินในกระเป๋าและแบงก์
+    usage: /mnc
+  mnp:
+    description: โอนเงินให้ผู้เล่น
+    usage: /mnp <ผู้เล่น> <จำนวน>
+  mndeposit:
+    description: ฝากเงินเข้าบัญชีแบงก์
+    usage: /mndeposit <จำนวน>
+  mnwithdraw:
+    description: ถอนเงินจากบัญชีแบงก์
+    usage: /mnwithdraw <จำนวน>
+  mntop:
+    description: ดูอันดับเงินรวม top 10
+    usage: /mntop
+  givemoney:
+    description: ให้เงิน (Admin)
+    usage: /givemoney <ผู้เล่น> <จำนวน>
+  setmoney:
+    description: ตั้งเงิน (Admin)
+    usage: /setmoney <ผู้เล่น> <จำนวน>
+  takemoney:
+    description: ยึดเงิน (Admin)
+    usage: /takemoney <ผู้เล่น> <จำนวน>
+
+permissions:
+  mnmoney.admin:
+    default: op
+  mnmoney.top:
+    default: true

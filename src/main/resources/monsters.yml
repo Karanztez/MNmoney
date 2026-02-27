@@ -1,0 +1,46 @@
+# ไฟล์นี้ใช้สำหรับตั้งค่าการดรอปเงินจากมอนสเตอร์
+# คุณสามารถเปิด/ปิดการดรอปเงินของมอนสเตอร์แต่ละชนิด และกำหนดเรทดรอปหรือจำนวนเงินเองได้
+
+defaults:
+  # การตั้งค่าพื้นฐานสำหรับมอนสเตอร์ทุกตัวที่ไม่ได้ตั้งค่าแยกไว้ด้านล่าง
+  enabled: true
+  # โอกาสดรอปพื้นฐาน (เป็นเปอร์เซ็นต์, 0-100)
+  drop-chance: 30.0
+  # จำนวนเงินน้อยที่สุดที่จะดรอป (พื้นฐาน)
+  min-amount: 0.25
+  # จำนวนเงินมากที่สุดที่จะดรอป (พื้นฐาน)
+  max-amount: 0.75
+
+mobs:
+  # คุณสามารถเพิ่มมอนสเตอร์ชนิดอื่นๆ ได้จากรายชื่อ EntityType ของ Spigot
+  # ตัวอย่าง: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
+
+  ZOMBIE:
+    enabled: true
+    # drop-chance: 50.0 # หากต้องการใช้ค่าเฉพาะของซอมบี้ ให้ลบ # ข้างหน้าออก
+    # min-amount: 0.5   # หากต้องการใช้ค่าเฉพาะของซอมบี้ ให้ลบ # ข้างหน้าออก
+    # max-amount: 1.5   # หากต้องการใช้ค่าเฉพาะของซอมบี้ ให้ลบ # ข้างหน้าออก
+
+  SKELETON:
+    enabled: true
+    drop-chance: 40.0
+    min-amount: 0.4
+    max-amount: 1.2
+
+  CREEPER:
+    enabled: true
+    drop-chance: 60.0 # ตั้งให้ครีปเปอร์ดรอปง่ายกว่าปกติ
+    min-amount: 1.0
+    max-amount: 2.5
+
+  SPIDER:
+    enabled: true
+
+  ENDERMAN:
+    enabled: false # ตัวอย่าง: ปิดการดรอปเงินของ Enderman
+
+  PIG_ZOMBIE: # หรือชื่อ ZOMBIFIED_PIGLIN ในเวอร์ชั่นใหม่ๆ
+    enabled: true
+    drop-chance: 70.0
+    min-amount: 1.5
+    max-amount: 3.0
