@@ -3,6 +3,7 @@ package money.mnmoney;
 import money.mnmoney.api.MNmoneyAPI;
 import money.mnmoney.config.ConfigManager;
 import money.mnmoney.listener.PlayerListener;
+import money.mnmoney.manager.MobDropManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -29,12 +30,17 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
     private Connection connection;
     private ConfigManager configManager;
     private MNmoneyAPI api;
+    private MobDropManager mobDropManager;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         configManager = new ConfigManager(this);
         configManager.reloadMonstersConfig();
+        
+        mobDropManager = new MobDropManager(this);
+        mobDropManager.startTask();
+        
         api = new MNmoneyAPI(this);
 
         setupMySQL();
@@ -61,6 +67,9 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
 
     @Override
     public void onDisable() {
+        if (mobDropManager != null) {
+            mobDropManager.stopTask();
+        }
         if (connection != null) {
             try { connection.close(); } catch (SQLException ignored) {}
         }
@@ -120,6 +129,10 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
 
     public MNmoneyAPI getApi() {
         return api;
+    }
+    
+    public MobDropManager getMobDropManager() {
+        return mobDropManager;
     }
 
     public <T> CompletableFuture<T> supplyAsyncQuery(Supplier<T> supplier) {

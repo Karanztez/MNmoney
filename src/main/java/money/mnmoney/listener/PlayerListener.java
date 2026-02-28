@@ -3,7 +3,6 @@ package money.mnmoney.listener;
 import money.mnmoney.MNmoney;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -14,12 +13,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -71,6 +75,12 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        // บันทึก Log ยอดเงินค้างจ่ายเมื่อผู้เล่นออกจากเกม
+        plugin.getMobDropManager().savePlayer(event.getPlayer().getUniqueId());
+    }
+
+    @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getKiller() == null) return;
         if (!monsterTypes.contains(event.getEntityType())) return;
@@ -79,12 +89,10 @@ public class PlayerListener implements Listener {
         String mobName = event.getEntityType().name();
         String path = "mobs." + mobName;
 
-        // ตรวจสอบว่าเปิดใช้งานสำหรับ mob ตัวนี้หรือไม่ ถ้าไม่ ให้จบการทำงาน
         if (!monstersConfig.getBoolean(path + ".enabled", monstersConfig.getBoolean("defaults.enabled", true))) {
             return;
         }
 
-        // ดึงค่าเฉพาะของ mob หรือใช้ค่า defaults
         double dropChance = monstersConfig.getDouble(path + ".drop-chance", monstersConfig.getDouble("defaults.drop-chance", 50.0));
         double minAmount = monstersConfig.getDouble(path + ".min-amount", monstersConfig.getDouble("defaults.min-amount", 0.1));
         double maxAmount = monstersConfig.getDouble(path + ".max-amount", monstersConfig.getDouble("defaults.max-amount", 1.0));
@@ -123,10 +131,15 @@ public class PlayerListener implements Listener {
                         double value = Double.parseDouble(valueString);
                         Player player = event.getPlayer();
 
+                        // 1. ให้เงินทันที! (ดึงยอดเก่า -> บวกยอดใหม่ -> บันทึก)
                         plugin.getWallet(player.getUniqueId()).thenAccept(wallet -> {
                             double newBalance = wallet + value;
                             plugin.setWallet(player.getUniqueId(), newBalance);
-                            plugin.logTransaction(null, player.getUniqueId(), "mob_drop", value, newBalance, "เก็บเงินจากมอนสเตอร์");
+                            
+                            // 2. ส่งยอดไปรอทำ Log (Batch Processing)
+                            plugin.getMobDropManager().addTransaction(player.getUniqueId(), value);
+                            
+                            // 3. แจ้งเตือนผู้เล่นทันที
                             player.sendMessage(ChatColor.GOLD + "+ " + String.format("%,.2f", value) + " บาท");
                         });
 
