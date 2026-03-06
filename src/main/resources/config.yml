@@ -2,8 +2,13 @@
 
 # MySQL Database connection settings
 mysql:
+  enabled: true # เปลี่ยนเป็น true เพื่อใช้ MySQL, false เพื่อใช้ Local YAML (data.yml)
   host: 'localhost'
   port: 3306
   database: 'mnmoney'
   username: 'my'
   password: '12345'
+
+# การตั้งค่าอื่นๆ
+settings:
+  save-interval: 1200 # ระยะเวลาบันทึกข้อมูลจาก Cache ลง DB/File (Tick: 1200 = 1 นาที)

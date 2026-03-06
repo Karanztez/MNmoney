@@ -131,17 +131,14 @@ public class PlayerListener implements Listener {
                         double value = Double.parseDouble(valueString);
                         Player player = event.getPlayer();
 
-                        // 1. ให้เงินทันที! (ดึงยอดเก่า -> บวกยอดใหม่ -> บันทึก)
-                        plugin.getWallet(player.getUniqueId()).thenAccept(wallet -> {
-                            double newBalance = wallet + value;
-                            plugin.setWallet(player.getUniqueId(), newBalance);
-                            
-                            // 2. ส่งยอดไปรอทำ Log (Batch Processing)
-                            plugin.getMobDropManager().addTransaction(player.getUniqueId(), value);
-                            
-                            // 3. แจ้งเตือนผู้เล่นทันที
-                            player.sendMessage(ChatColor.GOLD + "+ " + String.format("%,.2f", value) + " บาท");
-                        });
+                        // 1. เพิ่มเงินเข้า Cache ทันที (Atomic Update)
+                        plugin.addWallet(player.getUniqueId(), value);
+                        
+                        // 2. ส่งยอดไปรอทำ Log (Batch Processing)
+                        plugin.getMobDropManager().addTransaction(player.getUniqueId(), value);
+                        
+                        // 3. แจ้งเตือนผู้เล่นทันที
+                        player.sendMessage(ChatColor.GOLD + "+ " + String.format("%,.2f", value) + " บาท");
 
                     } catch (NumberFormatException | IndexOutOfBoundsException e) {
                         plugin.getLogger().warning("ไม่สามารถอ่านค่าเงินจากเหรียญได้: " + lore.get(0));
