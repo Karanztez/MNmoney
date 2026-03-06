@@ -4,7 +4,7 @@ main: money.mnmoney.MNmoney
 api-version: '1.21'
 load: STARTUP
 authors: [ Gordy ]
-description: ระบบเงิน Magnus Network - Async MySQL + Bank + Leaderboard
+description: ระบบเงิน Magnus Network - High Performance Caching + Hybrid Storage (MySQL/JSON)
 softdepend: [PlaceholderAPI, Vault]
 
 commands:
@@ -32,9 +32,14 @@ commands:
   takemoney:
     description: ยึดเงิน (Admin)
     usage: /takemoney <ผู้เล่น> <จำนวน>
+  mnadmin:
+    description: คำสั่งจัดการระบบ (Admin)
+    usage: /mnadmin <export>
 
 permissions:
   mnmoney.admin:
+    description: สิทธิ์สำหรับผู้ดูแลระบบ
     default: op
   mnmoney.top:
+    description: สิทธิ์สำหรับดูอันดับผู้เล่นรวยที่สุด
     default: true
