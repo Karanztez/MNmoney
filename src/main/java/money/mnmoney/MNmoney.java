@@ -128,7 +128,7 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
                 localJsonData.put("wallet", new HashMap<>());
                 localJsonData.put("bank", new HashMap<>());
                 saveJsonToFile();
-            } catch (IOException e) { e.printStackTrace(); }
+            } catch (IOException e) { throw new RuntimeException("Could not create data.json", e); }
         } else {
             loadJsonFromFile();
         }
@@ -145,13 +145,13 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
                 localJsonData.put("wallet", new HashMap<>());
                 localJsonData.put("bank", new HashMap<>());
             }
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) { throw new RuntimeException("Could not load data.json", e); }
     }
 
     private synchronized void saveJsonToFile() {
         try (Writer writer = new FileWriter(localDataFile)) {
             gson.toJson(localJsonData, writer);
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (IOException e) { throw new RuntimeException("Could not save data.json", e); }
     }
 
     private void setupMySQL() {
@@ -223,7 +223,7 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
                 try (PreparedStatement ps = connection.prepareStatement("SELECT balance FROM mnmoney_wallet WHERE uuid = ?")) {
                     ps.setString(1, uuid.toString());
                     try (ResultSet rs = ps.executeQuery()) { if (rs.next()) bal = rs.getDouble("balance"); }
-                } catch (SQLException e) { e.printStackTrace(); }
+                } catch (SQLException e) { throw new RuntimeException(e); }
             } else {
                 bal = localJsonData.get("wallet").getOrDefault(uuid.toString(), 0.0);
             }
@@ -240,7 +240,7 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
                 try (PreparedStatement ps = connection.prepareStatement("SELECT balance FROM mnmoney_bank WHERE uuid = ?")) {
                     ps.setString(1, uuid.toString());
                     try (ResultSet rs = ps.executeQuery()) { if (rs.next()) bal = rs.getDouble("balance"); }
-                } catch (SQLException e) { e.printStackTrace(); }
+                } catch (SQLException e) { throw new RuntimeException(e); }
             } else {
                 bal = localJsonData.get("bank").getOrDefault(uuid.toString(), 0.0);
             }
@@ -277,7 +277,7 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
             try (PreparedStatement ps = connection.prepareStatement("INSERT INTO mnmoney_transactions (from_uuid, from_name, to_uuid, to_name, type, amount, balance_after, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                 ps.setString(1, from != null ? from.toString() : null); ps.setString(2, fromName); ps.setString(3, to != null ? to.toString() : null); ps.setString(4, toName); ps.setString(5, type); ps.setDouble(6, amount); ps.setDouble(7, after); ps.setString(8, note);
                 ps.executeUpdate();
-            } catch (SQLException e) { e.printStackTrace(); }
+            } catch (SQLException e) { throw new RuntimeException(e); }
         });
     }
 
@@ -293,7 +293,7 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
             }
             
             player.sendMessage(prefix + amountText + " §7(" + reason + ")");
-
+            
             if (amount > 0) {
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
             }
@@ -306,7 +306,7 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
                 try (PreparedStatement ps = connection.prepareStatement("SELECT 1 FROM " + table + " WHERE uuid = ?")) {
                     ps.setString(1, uuid.toString());
                     try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
-                } catch (SQLException e) { return false; }
+                } catch (SQLException e) { throw new RuntimeException(e); }
             });
         } else {
             String key = table.contains("wallet") ? "wallet" : "bank";
