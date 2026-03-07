@@ -284,10 +284,16 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
     public void notifyPlayer(UUID uuid, double amount, String reason) {
         Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
-            String color = amount >= 0 ? "§a+" : "§c";
-            player.sendMessage("§6[MNMONEY] " + color + String.format("%,.2f", amount) + " บาท §7(" + reason + ")");
+            String prefix = "§c[§eระบบ§c] ";
+            String amountText;
+            if (amount >= 0) {
+                amountText = "§b+" + String.format("%,.2f", amount) + " บาท";
+            } else {
+                amountText = "§c" + String.format("%,.2f", amount) + " บาท";
+            }
             
-            // เล่นเสียงแจ้งเตือน (ถ้าต้องการ)
+            player.sendMessage(prefix + amountText + " §7(" + reason + ")");
+
             if (amount > 0) {
                 player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
             }
