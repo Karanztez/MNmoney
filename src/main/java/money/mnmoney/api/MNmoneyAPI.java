@@ -10,15 +10,6 @@ import java.util.concurrent.CompletableFuture;
 /**
  * API สำหรับปลั๊กอิน MNmoney
  * ให้ปลั๊กอินอื่นสามารถจัดการยอดเงินของผู้เล่นได้
- *
- * วิธีการใช้งานในปลั๊กอินอื่น:
- * 1. เพิ่ม softdepend: [MNmoney] ใน plugin.yml ของคุณ
- * 2. ดึง API มาใช้งาน:
- *    MNmoney mnMoneyPlugin = (MNmoney) Bukkit.getPluginManager().getPlugin("MNmoney");
- *    if (mnMoneyPlugin != null) {
- *        MNmoneyAPI api = mnMoneyPlugin.getApi();
- *        // เรียกใช้เมธอดต่างๆ เช่น api.getWalletBalance(player.getUniqueId()).thenAccept(...);
- *    }
  */
 public class MNmoneyAPI {
 
@@ -26,6 +17,17 @@ public class MNmoneyAPI {
 
     public MNmoneyAPI(MNmoney plugin) {
         this.plugin = plugin;
+    }
+
+    /**
+     * โหลดข้อมูลของผู้เล่นเข้าสู่ Cache ล่วงหน้า
+     * @param uuid UUID ของผู้เล่น
+     * @return CompletableFuture<Void> ที่จะเสร็จสิ้นเมื่อข้อมูล Wallet และ Bank โหลดเสร็จ
+     */
+    public CompletableFuture<Void> preloadPlayerData(UUID uuid) {
+        CompletableFuture<Double> walletFuture = plugin.getWallet(uuid);
+        CompletableFuture<Double> bankFuture = plugin.getBank(uuid);
+        return CompletableFuture.allOf(walletFuture, bankFuture);
     }
 
     /**
@@ -147,19 +149,12 @@ public class MNmoneyAPI {
 
     /**
      * แจ้งเตือนการทำธุรกรรมและบันทึกลง Database
-     * ใช้สำหรับปลั๊กอินอื่นที่ต้องการแจ้งผู้เล่นว่าได้รับ/เสียเงินจากอะไร
-     *
      * @param uuid UUID ของผู้เล่น
      * @param amount จำนวนเงิน (บวกคือได้รับ, ลบคือเสีย)
      * @param reason เหตุผล (เช่น "ขายของ", "ค่าบริการ")
      */
     public void notifyTransaction(UUID uuid, double amount, String reason) {
-        // 1. แจ้งเตือนผู้เล่นทันที (Real-time)
         plugin.notifyPlayer(uuid, amount, reason);
-
-        // 2. บันทึกลง Database (Async)
-        // หมายเหตุ: เมธอดนี้ไม่ได้เปลี่ยนยอดเงินจริง เป็นแค่การบันทึก Log และแจ้งเตือน
-        // ปลั๊กอินอื่นต้องเรียก deposit/withdraw เองเพื่อเปลี่ยนยอดเงิน
         getWalletBalance(uuid).thenAccept(currentBalance -> {
             plugin.logTransaction(null, uuid, "api_notify", amount, currentBalance, reason);
         });

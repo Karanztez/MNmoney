@@ -17,8 +17,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -40,10 +38,8 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        UUID uuid = event.getPlayer().getUniqueId();
-        // โหลดข้อมูลเข้า Cache ทันทีที่เข้าเกม
-        plugin.getWallet(uuid);
-        plugin.getBank(uuid);
+        // โหลดข้อมูลเข้า Cache ล่วงหน้า (Proactive Caching)
+        plugin.getApi().preloadPlayerData(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
@@ -112,7 +108,7 @@ public class PlayerListener implements Listener {
                             plugin.getMobDropManager().addTransaction(player.getUniqueId(), value);
                             
                             // 3. แจ้งเตือนผู้เล่นทันที
-                            player.sendMessage(ChatColor.GOLD + "+ " + String.format("%,.2f", value) + " บาท");
+                            plugin.notifyPlayer(player.getUniqueId(), value, "เก็บเหรียญ");
                         });
 
                     } catch (NumberFormatException | IndexOutOfBoundsException e) {
