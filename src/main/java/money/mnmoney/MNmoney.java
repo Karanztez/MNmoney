@@ -91,12 +91,13 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         
+        // Auto-save (Flush Cache) ทุก 30 วินาที (600 ticks) เพื่อความสมดุล
         new BukkitRunnable() {
             @Override
             public void run() {
                 flushCache();
             }
-        }.runTaskTimerAsynchronously(this, 1200L, 1200L);
+        }.runTaskTimerAsynchronously(this, 600L, 600L);
 
         getLogger().info("§a[MNMONEY] Magnus Network Economy พร้อมใช้งานแล้ว! (Mode: " + (useMySQL ? "MySQL" : "Local JSON") + ")");
     }

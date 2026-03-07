@@ -41,37 +41,9 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        String name = event.getPlayer().getName();
-
-        plugin.hasAccount(uuid, "mnmoney_wallet").thenAccept(has -> {
-            if (!has) {
-                plugin.setWallet(uuid, 0.0);
-            } else {
-                plugin.runAsyncUpdate(() -> {
-                    try (PreparedStatement ps = plugin.getConnection().prepareStatement(
-                            "UPDATE mnmoney_wallet SET player_name = ? WHERE uuid = ?")) {
-                        ps.setString(1, name);
-                        ps.setString(2, uuid.toString());
-                        ps.executeUpdate();
-                    } catch (SQLException ignored) {}
-                });
-            }
-        });
-
-        plugin.hasAccount(uuid, "mnmoney_bank").thenAccept(has -> {
-            if (!has) {
-                plugin.setBank(uuid, 0.0);
-            } else {
-                plugin.runAsyncUpdate(() -> {
-                    try (PreparedStatement ps = plugin.getConnection().prepareStatement(
-                            "UPDATE mnmoney_bank SET player_name = ? WHERE uuid = ?")) {
-                        ps.setString(1, name);
-                        ps.setString(2, uuid.toString());
-                        ps.executeUpdate();
-                    } catch (SQLException ignored) {}
-                });
-            }
-        });
+        // โหลดข้อมูลเข้า Cache ทันทีที่เข้าเกม
+        plugin.getWallet(uuid);
+        plugin.getBank(uuid);
     }
 
     @EventHandler
@@ -131,14 +103,17 @@ public class PlayerListener implements Listener {
                         double value = Double.parseDouble(valueString);
                         Player player = event.getPlayer();
 
-                        // 1. เพิ่มเงินเข้า Cache ทันที (Atomic Update)
-                        plugin.addWallet(player.getUniqueId(), value);
-                        
-                        // 2. ส่งยอดไปรอทำ Log (Batch Processing)
-                        plugin.getMobDropManager().addTransaction(player.getUniqueId(), value);
-                        
-                        // 3. แจ้งเตือนผู้เล่นทันที
-                        player.sendMessage(ChatColor.GOLD + "+ " + String.format("%,.2f", value) + " บาท");
+                        // 1. ให้เงินทันที! (ดึงยอดเก่า -> บวกยอดใหม่ -> บันทึก)
+                        plugin.getWallet(player.getUniqueId()).thenAccept(wallet -> {
+                            double newBalance = wallet + value;
+                            plugin.setWallet(player.getUniqueId(), newBalance);
+                            
+                            // 2. ส่งยอดไปรอทำ Log (Batch Processing)
+                            plugin.getMobDropManager().addTransaction(player.getUniqueId(), value);
+                            
+                            // 3. แจ้งเตือนผู้เล่นทันที
+                            player.sendMessage(ChatColor.GOLD + "+ " + String.format("%,.2f", value) + " บาท");
+                        });
 
                     } catch (NumberFormatException | IndexOutOfBoundsException e) {
                         plugin.getLogger().warning("ไม่สามารถอ่านค่าเงินจากเหรียญได้: " + lore.get(0));
