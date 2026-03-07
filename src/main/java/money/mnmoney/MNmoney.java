@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import money.mnmoney.api.MNmoneyAPI;
 import money.mnmoney.api.VaultEconomy;
+import money.mnmoney.api.events.PlayerBalanceChangeEvent;
 import money.mnmoney.config.ConfigManager;
 import money.mnmoney.listener.PlayerListener;
 import money.mnmoney.manager.MobDropManager;
@@ -246,9 +247,31 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
         });
     }
 
-    public void setWallet(UUID uuid, double amount) { walletCache.put(uuid, amount); }
-    public void setBank(UUID uuid, double amount) { bankCache.put(uuid, amount); }
-    public void addWallet(UUID uuid, double amount) { getWallet(uuid).thenAccept(current -> walletCache.put(uuid, current + amount)); }
+    public void setWallet(UUID uuid, double amount) {
+        double oldBalance = walletCache.getOrDefault(uuid, 0.0);
+        walletCache.put(uuid, amount);
+        
+        // ยิง Event ทันทีที่มีการเปลี่ยนแปลงใน Cache
+        Bukkit.getPluginManager().callEvent(new PlayerBalanceChangeEvent(uuid, oldBalance, amount, "Wallet"));
+    }
+
+    public void setBank(UUID uuid, double amount) {
+        double oldBalance = bankCache.getOrDefault(uuid, 0.0);
+        bankCache.put(uuid, amount);
+        
+        // ยิง Event ทันทีที่มีการเปลี่ยนแปลงใน Cache
+        Bukkit.getPluginManager().callEvent(new PlayerBalanceChangeEvent(uuid, oldBalance, amount, "Bank"));
+    }
+
+    public void addWallet(UUID uuid, double amount) {
+        getWallet(uuid).thenAccept(current -> {
+            double newBalance = current + amount;
+            walletCache.put(uuid, newBalance);
+            
+            // ยิง Event ทันทีที่มีการเปลี่ยนแปลงใน Cache
+            Bukkit.getPluginManager().callEvent(new PlayerBalanceChangeEvent(uuid, current, newBalance, "Wallet"));
+        });
+    }
 
     public void logTransaction(UUID from, UUID to, String type, double amount, double after, String note) {
         if (!useMySQL) return;
