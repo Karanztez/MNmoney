@@ -146,6 +146,26 @@ public class MNmoneyAPI {
     }
 
     /**
+     * แจ้งเตือนการทำธุรกรรมและบันทึกลง Database
+     * ใช้สำหรับปลั๊กอินอื่นที่ต้องการแจ้งผู้เล่นว่าได้รับ/เสียเงินจากอะไร
+     *
+     * @param uuid UUID ของผู้เล่น
+     * @param amount จำนวนเงิน (บวกคือได้รับ, ลบคือเสีย)
+     * @param reason เหตุผล (เช่น "ขายของ", "ค่าบริการ")
+     */
+    public void notifyTransaction(UUID uuid, double amount, String reason) {
+        // 1. แจ้งเตือนผู้เล่นทันที (Real-time)
+        plugin.notifyPlayer(uuid, amount, reason);
+
+        // 2. บันทึกลง Database (Async)
+        // หมายเหตุ: เมธอดนี้ไม่ได้เปลี่ยนยอดเงินจริง เป็นแค่การบันทึก Log และแจ้งเตือน
+        // ปลั๊กอินอื่นต้องเรียก deposit/withdraw เองเพื่อเปลี่ยนยอดเงิน
+        getWalletBalance(uuid).thenAccept(currentBalance -> {
+            plugin.logTransaction(null, uuid, "api_notify", amount, currentBalance, reason);
+        });
+    }
+
+    /**
      * ตรวจสอบว่าผู้เล่นมีบัญชีหรือไม่
      * @param uuid UUID ของผู้เล่น
      * @return CompletableFuture<Boolean>

@@ -11,7 +11,9 @@ import money.mnmoney.listener.PlayerListener;
 import money.mnmoney.manager.MobDropManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -250,16 +252,12 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
     public void setWallet(UUID uuid, double amount) {
         double oldBalance = walletCache.getOrDefault(uuid, 0.0);
         walletCache.put(uuid, amount);
-        
-        // ยิง Event ทันทีที่มีการเปลี่ยนแปลงใน Cache
         Bukkit.getPluginManager().callEvent(new PlayerBalanceChangeEvent(uuid, oldBalance, amount, "Wallet"));
     }
 
     public void setBank(UUID uuid, double amount) {
         double oldBalance = bankCache.getOrDefault(uuid, 0.0);
         bankCache.put(uuid, amount);
-        
-        // ยิง Event ทันทีที่มีการเปลี่ยนแปลงใน Cache
         Bukkit.getPluginManager().callEvent(new PlayerBalanceChangeEvent(uuid, oldBalance, amount, "Bank"));
     }
 
@@ -267,8 +265,6 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
         getWallet(uuid).thenAccept(current -> {
             double newBalance = current + amount;
             walletCache.put(uuid, newBalance);
-            
-            // ยิง Event ทันทีที่มีการเปลี่ยนแปลงใน Cache
             Bukkit.getPluginManager().callEvent(new PlayerBalanceChangeEvent(uuid, current, newBalance, "Wallet"));
         });
     }
@@ -283,6 +279,19 @@ public class MNmoney extends JavaPlugin implements TabCompleter {
                 ps.executeUpdate();
             } catch (SQLException e) { e.printStackTrace(); }
         });
+    }
+
+    public void notifyPlayer(UUID uuid, double amount, String reason) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            String color = amount >= 0 ? "§a+" : "§c";
+            player.sendMessage("§6[MNMONEY] " + color + String.format("%,.2f", amount) + " บาท §7(" + reason + ")");
+            
+            // เล่นเสียงแจ้งเตือน (ถ้าต้องการ)
+            if (amount > 0) {
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+            }
+        }
     }
 
     public CompletableFuture<Boolean> hasAccount(UUID uuid, String table) {
