@@ -18,20 +18,15 @@ jobs:
           distribution: 'temurin'
           server-id: cloudsmith # สำคัญ: ต้องตรงกับใน build.gradle (ถ้ามี)
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
       - name: Build with Gradle
         run: ./gradlew build
 
       - name: Push to Cloudsmith
-        uses: cloudsmith-io/action@v0.1.0
+        uses: cloudsmith-io/action@master # เปลี่ยนจาก v0.1.0 เป็น master แทนครับ
         with:
           api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
           command: 'push'
           format: 'maven'
-          # รูปแบบ: owner/repository (เปลี่ยนตามของตัวเองนะครับ)
-          owner: 'younarak'
-          repo: 'mnmoney'
-          # ชี้ไปที่ไฟล์ jar ที่บิวด์เสร็จแล้ว
-          file: 'build/libs/mnmoney-api-1.0.1.5.jar'
+          owner: 'younarak'  # เช็คชื่อ owner ใน Cloudsmith ให้เป๊ะนะครับ
+          repo: 'mnmoney' # เช็คชื่อ repo ใน Cloudsmith ให้เป๊ะนะครับ
+          file: 'build/libs/mnmoney-1.0.1.5.jar'
