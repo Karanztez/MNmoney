@@ -68,7 +68,7 @@ publishing {
     repositories {
         maven {
             name = "Cloudsmith"
-            url = "https://maven.cloudsmith.io/younarak/mnmoney/"
+            url = "https://maven.cloudsmith.io/"
             credentials {
                 username = "api"
                 password = System.getenv("CLOUDSMITH_API_KEY") // ดึงจาก GitHub Secret
