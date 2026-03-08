@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'maven-publish' // [เพิ่ม] ปลั๊กอินสำหรับการส่งออกไฟล์ (Publish) ขึ้น Repsy
+    id 'maven-publish'
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-group = 'money'
+group = 'younarak' // แนะนำให้ใช้ชื่อเดียวกับใน Cloudsmith ครับ
 version = '1.0.1.5'
 
 repositories {
@@ -13,38 +13,22 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
-    maven {
-        name = "Cloudsmith"
-        // ดูลิงก์ในหน้า Cloudsmith ตรง Setup > Gradle (Repository URL)
-        url = "https://maven.cloudsmith.io/younarak/mnmoney/"
-        credentials {
-            username = "api" // สำหรับ Cloudsmith ตรงนี้ใส่ "api" เสมอครับ
-            password = System.getenv("CLOUDSMITH_API_KEY")
-        }
-    }
-    maven { url = 'https://jitpack.io' }
+    // ดึง PlaceholderAPI จากต้นฉบับ ไม่ผ่าน Jitpack
     maven {
         name = "placeholderapi"
-        url = ("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+        url = "https://repo.extendedclip.com/content/repositories/placeholderapi/"
     }
+    maven { url = 'https://jitpack.io' }
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT") // แก้เลขเวอร์ชันให้ตรง
     compileOnly ("com.github.MilkBowl:VaultAPI:1.7.1")
-    implementation ("com.mysql:mysql-connector-j:9.6.0")
-    compileOnly ("me.clip:placeholderapi:2.12.2")
+    implementation ("com.mysql:mysql-connector-j:9.2.0")
+    compileOnly ("me.clip:placeholderapi:2.11.6")
 }
 
-tasks {
-    runServer {
-        // Configure the Minecraft version for our task.
-        // This is the only required configuration besides applying the plugin.
-        // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("1.21")
-    }
-}
-
+// ตั้งค่า Java 21 ตามไฟล์ publish.yml ที่เราคุยกัน
 def targetJavaVersion = 23
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
@@ -57,7 +41,6 @@ java {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
-
     if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
         options.release.set(targetJavaVersion)
     }
@@ -72,28 +55,23 @@ processResources {
     }
 }
 
-// ==========================================================
-// [เพิ่ม] บล็อกตั้งค่าส่งออก (Publish) API ไปยัง Repsy
-// ==========================================================
+// บล็อกส่งไฟล์ขึ้น Cloudsmith (ลบ Repsy เก่าออกให้หมด)
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-
-            // ตั้งค่าชื่อที่จะให้คนอื่นใช้ตอนดึง API
             groupId = 'younarak'
             artifactId = 'mnmoney'
-            version = project.version // ดึงจากบรรทัด version = '1.0.1.5' ด้านบน
+            version = '1.0.1.5'
         }
     }
     repositories {
         maven {
-            name = "Repsy"
-            url = "https://repo.repsy.io/younarak/mnmoney-api"
+            name = "Cloudsmith"
+            url = "https://maven.cloudsmith.io/younarak/mnmoney/"
             credentials {
-                // รอรับรหัสผ่านจาก GitHub Actions
-                username = System.getenv("REPSY_USER") ?: project.findProperty("repsyUser")
-                password = System.getenv("REPSY_PASS") ?: project.findProperty("repsyPass")
+                username = "api"
+                password = System.getenv("CLOUDSMITH_API_KEY") // ดึงจาก GitHub Secret
             }
         }
     }
