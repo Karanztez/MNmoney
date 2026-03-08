@@ -18,6 +18,9 @@ jobs:
           distribution: 'temurin'
           server-id: cloudsmith # สำคัญ: ต้องตรงกับใน build.gradle (ถ้ามี)
 
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
       - name: Build with Gradle
         run: ./gradlew build
 
