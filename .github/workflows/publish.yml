@@ -21,9 +21,11 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-      # เพิ่ม --no-daemon เพื่อให้บิวด์สะอาดและลดโอกาสค้างบน GitHub Actions
-        run: ./gradlew build --no-daemon
+      - name: Build and Publish to Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+      # ใช้คำสั่ง publish ตัวเดียวจบ ไม่ต้องระบุชื่อไฟล์ pom หรือ jar เองครับ
+        run: ./gradlew publish --no-daemon
 
       - name: Push to Cloudsmith
         uses: cloudsmith-io/action@master # เปลี่ยนจาก v0.1.0 เป็น master แทนครับ

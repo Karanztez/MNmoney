@@ -16,7 +16,7 @@ repositories {
     maven {
         name = "Cloudsmith"
         // ดูลิงก์ในหน้า Cloudsmith ตรง Setup > Gradle (Repository URL)
-        url = "https://maven.cloudsmith.io/younarak/mnmoney-api/"
+        url = "https://maven.cloudsmith.io/younarak/mnmoney/"
         credentials {
             username = "api" // สำหรับ Cloudsmith ตรงนี้ใส่ "api" เสมอครับ
             password = System.getenv("CLOUDSMITH_API_KEY")
