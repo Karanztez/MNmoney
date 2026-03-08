@@ -18,6 +18,10 @@ repositories {
         url = ("https://jitpack.io")
     }
     maven {
+        name = "repsy"
+        url = ("https://repo.repsy.io/younarak/mnmoney-api")
+    }
+    maven {
         name = "placeholderapi"
         url = ("https://repo.extendedclip.com/releases/")
     }
