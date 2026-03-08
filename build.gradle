@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'maven-publish' // [เพิ่ม] ปลั๊กอินสำหรับการส่งออกไฟล์ (Publish) ขึ้น Repsy
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
@@ -62,5 +63,32 @@ processResources {
     filteringCharset 'UTF-8'
     filesMatching('plugin.yml') {
         expand props
+    }
+}
+
+// ==========================================================
+// [เพิ่ม] บล็อกตั้งค่าส่งออก (Publish) API ไปยัง Repsy
+// ==========================================================
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            // ตั้งค่าชื่อที่จะให้คนอื่นใช้ตอนดึง API
+            groupId = 'com.younarak'
+            artifactId = 'mnmoney-api'
+            version = project.version // ดึงจากบรรทัด version = '1.0.1.5' ด้านบน
+        }
+    }
+    repositories {
+        maven {
+            name = "Repsy"
+            url = "https://repo.repsy.io/younarak/mnmoney-api"
+            credentials {
+                // รอรับรหัสผ่านจาก GitHub Actions
+                username = System.getenv("REPSY_USER") ?: project.findProperty("repsyUser")
+                password = System.getenv("REPSY_PASS") ?: project.findProperty("repsyPass")
+            }
+        }
     }
 }
