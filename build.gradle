@@ -23,7 +23,7 @@ repositories {
     }
     maven {
         name = "placeholderapi"
-        url = ("https://repo.extendedclip.com/releases/")
+        url = ("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     }
 }
 
