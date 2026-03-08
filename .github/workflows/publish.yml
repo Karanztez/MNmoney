@@ -22,7 +22,8 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew build
+      # เพิ่ม --no-daemon เพื่อให้บิวด์สะอาดและลดโอกาสค้างบน GitHub Actions
+        run: ./gradlew build --no-daemon
 
       - name: Push to Cloudsmith
         uses: cloudsmith-io/action@master # เปลี่ยนจาก v0.1.0 เป็น master แทนครับ
