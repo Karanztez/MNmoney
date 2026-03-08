@@ -24,7 +24,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT") // แก้เลขเวอร์ชันให้ตรง
     compileOnly ("com.github.MilkBowl:VaultAPI:1.7.1")
-    implementation ("com.mysql:mysql-connector-j:9.2.0")
+    implementation ('com.mysql:mysql-connector-j:9.3.0')
     compileOnly ("me.clip:placeholderapi:2.11.6")
 }
 
