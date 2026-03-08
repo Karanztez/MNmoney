@@ -13,6 +13,15 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
+    maven {
+        name = "Cloudsmith"
+        // ดูลิงก์ในหน้า Cloudsmith ตรง Setup > Gradle (Repository URL)
+        url = "https://maven.cloudsmith.io/younarak/mnmoney-api/"
+        credentials {
+            username = "api" // สำหรับ Cloudsmith ตรงนี้ใส่ "api" เสมอครับ
+            password = System.getenv("CLOUDSMITH_API_KEY")
+        }
+    }
     maven { url = 'https://jitpack.io' }
     maven {
         name = "placeholderapi"
@@ -72,8 +81,8 @@ publishing {
             from components.java
 
             // ตั้งค่าชื่อที่จะให้คนอื่นใช้ตอนดึง API
-            groupId = 'com.younarak'
-            artifactId = 'mnmoney-api'
+            groupId = 'younarak'
+            artifactId = 'mnmoney'
             version = project.version // ดึงจากบรรทัด version = '1.0.1.5' ด้านบน
         }
     }
