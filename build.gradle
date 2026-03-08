@@ -59,7 +59,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            groupId = 'magnus'
+            groupId = 'org.codemc.Karanztez'
             artifactId = 'mnmoney'
         }
     }
@@ -68,7 +68,7 @@ publishing {
             name = "CodeMC"
             url = "https://repo.codemc.io/repository/maven-releases/"
             credentials {
-                username = "Karanztez"
+                username = "__token__"
                 password = System.getenv("CODEMC_TOKEN")
             }
         }
