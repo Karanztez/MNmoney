@@ -4,7 +4,7 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-group = 'younarak' // แนะนำให้ใช้ชื่อเดียวกับใน Cloudsmith ครับ
+group = 'younarak'
 version = '1.0.1.5'
 
 repositories {
@@ -22,13 +22,13 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT") // แก้เลขเวอร์ชันให้ตรง
+    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
     compileOnly ("com.github.MilkBowl:VaultAPI:1.7.1")
     implementation ('com.mysql:mysql-connector-j:9.3.0')
     compileOnly ("me.clip:placeholderapi:2.11.6")
 }
 
-// ตั้งค่า Java 21 ตามไฟล์ publish.yml ที่เราคุยกัน
+
 def targetJavaVersion = 23
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
@@ -71,7 +71,7 @@ publishing {
             url = "https://maven.cloudsmith.io/"
             credentials {
                 username = "api"
-                password = System.getenv("CLOUDSMITH_API_KEY") // ดึงจาก GitHub Secret
+                password = System.getenv("CLOUDSMITH_API_KEY")
             }
         }
     }
