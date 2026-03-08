@@ -31,6 +31,46 @@ public class MNmoneyAPI {
     }
 
     /**
+     * โอนเงินจาก Wallet ของผู้ส่งไปยัง Wallet ของผู้รับ (Atomic Operation)
+     * @param from UUID ของผู้ส่ง
+     * @param to UUID ของผู้รับ
+     * @param amount จำนวนเงิน
+     * @return CompletableFuture ที่จะคืนค่าเป็น TransferResult
+     */
+    public CompletableFuture<TransferResult> transfer(UUID from, UUID to, double amount) {
+        if (from.equals(to)) {
+            return CompletableFuture.completedFuture(TransferResult.SELF_TRANSFER);
+        }
+        if (amount <= 0) {
+            return CompletableFuture.completedFuture(TransferResult.INVALID_AMOUNT);
+        }
+
+        return getWalletBalance(from).thenCompose(fromBalance -> {
+            if (fromBalance < amount) {
+                return CompletableFuture.completedFuture(TransferResult.INSUFFICIENT_FUNDS);
+            }
+            
+            return getWalletBalance(to).thenApply(toBalance -> {
+                try {
+                    // ทำการเปลี่ยนแปลงใน Cache
+                    plugin.setWallet(from, fromBalance - amount);
+                    plugin.setWallet(to, toBalance + amount);
+
+                    // บันทึก Log
+                    plugin.logTransaction(from, to, "transfer", amount, fromBalance - amount, "API Transfer");
+                    
+                    return TransferResult.SUCCESS;
+                } catch (Exception e) {
+                    // Rollback in case of error
+                    plugin.setWallet(from, fromBalance);
+                    plugin.setWallet(to, toBalance);
+                    return TransferResult.ERROR;
+                }
+            });
+        });
+    }
+
+    /**
      * ดึงยอดเงินใน Wallet ของผู้เล่นแบบ Asynchronous
      * @param uuid UUID ของผู้เล่น
      * @return CompletableFuture ที่จะคืนค่าเป็นยอดเงิน (Double)
