@@ -4,7 +4,7 @@ plugins {
     id("xyz.jpenilla.run-paper") version "2.3.1"
 }
 
-group = 'younarak'
+group = 'magnus'
 version = '1.0.1.5'
 
 repositories {
@@ -55,23 +55,21 @@ processResources {
     }
 }
 
-// บล็อกส่งไฟล์ขึ้น Cloudsmith (ลบ Repsy เก่าออกให้หมด)
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            groupId = 'younarak'
+            groupId = 'magnus'
             artifactId = 'mnmoney'
-            version = '1.0.1.5'
         }
     }
     repositories {
         maven {
-            name = "Cloudsmith"
-            url = "https://maven.cloudsmith.io/"
+            name = "CodeMC"
+            url = "https://repo.codemc.io/repository/maven-releases/"
             credentials {
-                username = "api"
-                password = System.getenv("CLOUDSMITH_API_KEY")
+                username = "Karanztez"
+                password = System.getenv("CODEMC_TOKEN")
             }
         }
     }
